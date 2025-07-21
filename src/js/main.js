@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
         
-        // If birthday hasn't occurred this year yet
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
@@ -18,34 +17,45 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update age display
     const ageElement = document.getElementById('age-display');
     if (ageElement) {
-        ageElement.textContent = `${calculateAge()} years old`;
+        ageElement.textContent = `${calculateAge()}`;
     }
 
-    // Perfect Navigation Sync
-    const sections = document.querySelectorAll('.section');
+    // Simplified Navigation System
+    const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-link');
-    const header = document.querySelector('.header');
 
     function updateActiveNav() {
         const scrollPos = window.pageYOffset + 100;
         
+        // Clear all active states
+        navLinks.forEach(link => link.classList.remove('active'));
+        
+        // Find current section (excluding home)
+        let currentSection = '';
+        
         sections.forEach(section => {
-            const top = section.offsetTop;
-            const bottom = top + section.offsetHeight;
             const id = section.getAttribute('id');
+            if (id === 'home') return; // Skip home section
             
-            if (scrollPos >= top && scrollPos < bottom) {
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${id}`) {
-                        link.classList.add('active');
-                    }
-                });
+            const rect = section.getBoundingClientRect();
+            const sectionTop = window.pageYOffset + rect.top;
+            const sectionHeight = section.offsetHeight;
+            
+            if (scrollPos >= sectionTop - 50 && scrollPos < sectionTop + sectionHeight - 50) {
+                currentSection = id;
             }
         });
+        
+        // Set active navigation
+        if (currentSection) {
+            const activeLink = document.querySelector(`[href="#${currentSection}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
     }
 
-    // Smooth scroll for navigation links
+    // Smooth scroll for navigation
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -53,8 +63,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetSection = document.getElementById(targetId);
             
             if (targetSection) {
-                const headerHeight = window.innerWidth <= 768 ? 0 : 70;
-                const targetPosition = targetSection.offsetTop - headerHeight;
+                const isMobile = window.innerWidth <= 768;
+                const offset = isMobile ? 0 : 70;
+                const targetPosition = targetSection.offsetTop - offset;
                 
                 window.scrollTo({
                     top: targetPosition,
@@ -64,22 +75,68 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Scroll event listeners
-    window.addEventListener('scroll', updateActiveNav);
-    window.addEventListener('load', updateActiveNav);
-
-    // Form submission feedback
-    const contactForm = document.querySelector('.contact-form form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            const submitButton = this.querySelector('.btn-submit');
-            submitButton.textContent = 'Sending...';
-            submitButton.disabled = true;
+    // Logo click handler
+    const logoLink = document.querySelector('.logo a');
+    if (logoLink) {
+        logoLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            navLinks.forEach(link => link.classList.remove('active'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 
-    // Intersection Observer for animations
-    const observer = new IntersectionObserver(function(entries) {
+    // Language Dropdown
+    const languageDropdown = document.querySelector('.language-dropdown');
+    const languageToggle = document.querySelector('.language-toggle');
+    const languageOptions = document.querySelectorAll('.language-option');
+
+    if (languageToggle) {
+        languageToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            languageDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!languageDropdown.contains(e.target)) {
+                languageDropdown.classList.remove('active');
+            }
+        });
+
+        // Handle language selection
+        languageOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const langCode = this.dataset.lang.toUpperCase();
+                const langText = languageToggle.querySelector('.language-text');
+                if (langText) langText.textContent = langCode;
+                
+                languageDropdown.classList.remove('active');
+                
+                const href = this.getAttribute('href');
+                if (href && href !== '#') {
+                    window.location.href = href;
+                }
+            });
+        });
+    }
+
+    // Form handling
+    const contactForm = document.querySelector('.contact-form form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function() {
+            const submitButton = this.querySelector('.btn-submit');
+            if (submitButton) {
+                submitButton.textContent = 'Sending...';
+                submitButton.disabled = true;
+            }
+        });
+    }
+
+    // Simple fade-in animation
+    const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
@@ -88,12 +145,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, { threshold: 0.1 });
 
-    // Animate elements on scroll
-    const animatedElements = document.querySelectorAll('.timeline-item, .project-card, .info-card');
-    animatedElements.forEach((element, index) => {
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(20px)';
-        element.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
-        observer.observe(element);
+    // Apply animations
+    document.querySelectorAll('.timeline-item, .project-card, .info-card').forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `all 0.6s ease ${i * 0.1}s`;
+        observer.observe(el);
     });
+
+    // Throttled scroll handler
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+        if (scrollTimeout) return;
+        scrollTimeout = setTimeout(() => {
+            updateActiveNav();
+            scrollTimeout = null;
+        }, 10);
+    });
+
+    // Initialize
+    updateActiveNav();
 });

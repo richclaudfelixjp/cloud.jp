@@ -6,7 +6,7 @@
     <title>cloud.jp - Software QA Engineer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
@@ -19,18 +19,41 @@
                 </div>
                 <nav class="nav">
                     <ul class="nav-list">
-                        <li><a href="#home" class="nav-link active">Home</a></li>
                         <li><a href="#about" class="nav-link">About</a></li>
                         <li><a href="#experience" class="nav-link">Experience</a></li>
                         <li><a href="#projects" class="nav-link">Projects</a></li>
                         <li><a href="#contact" class="nav-link">Contact</a></li>
                     </ul>
                 </nav>
+                <div class="header-actions">
+                    <div class="language-dropdown">
+                        <button class="language-toggle" aria-label="Select Language">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                                <path d="M2 12h20"/>
+                            </svg>
+                            <span class="language-text">EN</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="language-menu">
+                            <a href="../en/index.html" class="language-option active" data-lang="en">
+                                <span class="lang-flag">🇺🇸</span>
+                                <span class="lang-name">English</span>
+                            </a>
+                            <a href="../ja/index.html" class="language-option" data-lang="jp">
+                                <span class="lang-flag">🇯🇵</span>
+                                <span class="lang-name">日本語</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main>
         <!-- Hero Section -->
         <section id="home" class="section hero">
@@ -55,7 +78,7 @@
                                     </svg>
                                 </a>
                             </div>
-                            <a href="../assets/Richclaud_Felix_QA_Engineer_CV.pdf" class="btn-download" download="Richclaud_Felix_CV.pdf">
+                            <a href="../assets/Richclaud_Felix_QA_Engineer_CV.pdf" class="btn-download" download="Richclaud_Felix_QA_Engineer_CV.pdf">
                                 Download CV
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
@@ -73,15 +96,15 @@
                 <h2 class="section-title">About Me</h2>
                 <div class="about-content">
                     <div class="about-text">
-                        <p class="about-intro">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        <p class="about-intro">Software QA Engineer with expertise in manual and automated testing, ensuring software reliability and user satisfaction through comprehensive quality assurance strategies.</p>
                         <div class="skills">
                             <div class="skill">
-                                <h3>Core Skills</h3>
-                                <p>Test</p>
+                                <h3>Testing Expertise</h3>
+                                <p>Manual & Automated Testing, API Testing, Cross-platform Compatibility</p>
                             </div>
                             <div class="skill">
-                                <h3>Tools and Technologies</h3>
-                                <p>Test</p>
+                                <h3>Technical Skills</h3>
+                                <p>Test Automation, Performance Testing, CI/CD Integration</p>
                             </div>
                             <div class="skill">
                                 <h3>Languages</h3>
@@ -92,15 +115,25 @@
                     <div class="about-info">
                         <div class="info-card">
                             <span class="info-label">Education</span>
-                            <span class="info-value">Bachelor of Science in Computer Engineering</span>
+                            <a href="../assets/Computer_Engineering_Degree.pdf" target="_blank" class="info-value info-link">
+                                Bachelor of Science in Computer Engineering
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                                </svg>
+                            </a>
                         </div>
                         <div class="info-card">
                             <span class="info-label">Age</span>
-                            <span class="info-value" id="age-display">25 years old</span>
+                            <span class="info-value" id="age-display"></span><span class="info-value"> years old</span>
                         </div>
                         <div class="info-card">
                             <span class="info-label">Certification</span>
-                            <span class="info-value">JLPT N4</span>
+                            <a href="../assets/JLPT_N4_Certificate.pdf" target="_blank" class="info-value info-link">
+                                JLPT N4
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                                </svg>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -118,10 +151,10 @@
                             <h3>Software QA Engineer</h3>
                             <h4>Royal Caribbean Group</h4>
                             <ul>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
+                                <li>Leading quality assurance initiatives for enterprise cruise management systems</li>
+                                <li>Implementing automated testing frameworks to improve testing efficiency</li>
+                                <li>Collaborating with cross-functional teams to ensure software quality standards</li>
+                                <li>Performance testing and optimization for high-traffic applications</li>
                             </ul>
                         </div>
                     </div>
@@ -131,10 +164,10 @@
                             <h3>Software QA Engineer</h3>
                             <h4>Nelsoft Systems Inc.</h4>
                             <ul>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
+                                <li>Specialized in educational software testing for learning management systems</li>
+                                <li>Developed comprehensive test cases and test documentation</li>
+                                <li>Ensured quality and reliability across multiple educational platforms</li>
+                                <li>Conducted regression testing and bug tracking using JIRA</li>
                             </ul>
                         </div>
                     </div>
@@ -144,10 +177,10 @@
                             <h3>QA Intern</h3>
                             <h4>Royal Caribbean Group</h4>
                             <ul>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
-                                <li>Test</li>
+                                <li>Gained foundational experience in software testing methodologies</li>
+                                <li>Participated in manual testing of web applications</li>
+                                <li>Learned quality assurance processes and best practices</li>
+                                <li>Assisted in test case creation and execution</li>
                             </ul>
                         </div>
                     </div>
@@ -162,14 +195,14 @@
                 <div class="projects-grid">
                     <div class="project-card">
                         <div class="project-header">
-                            <h3>cloud.jp Portfolio Website</h3>
+                            <h3>Portfolio Website</h3>
                             <a href="https://github.com/richclaudfelixjp/cloud.jp" target="_blank">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
                                 </svg>
                             </a>
                         </div>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        <p>Modern, responsive portfolio website with clean design and smooth animations.</p>
                         <div class="tech-tags">
                             <span>HTML5</span>
                             <span>CSS3</span>
@@ -178,14 +211,14 @@
                     </div>
                     <div class="project-card">
                         <div class="project-header">
-                            <h3>Playwright Test Automation Project</h3>
+                            <h3>Test Automation Framework</h3>
                             <a href="https://github.com/richclaudfelixjp/Playwright-Project" target="_blank">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
                                 </svg>
                             </a>
                         </div>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        <p>Comprehensive end-to-end testing framework using Playwright with CI/CD integration.</p>
                         <div class="tech-tags">
                             <span>Playwright</span>
                             <span>JavaScript</span>
@@ -242,7 +275,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-left">
-                    <p>&copy; 2025 cloud.jp All rights reserved.</p>
+                    <p>&copy; 2025 Richclaud Felix. All rights reserved.</p>
                 </div>
                 <div class="footer-right">
                     <div class="social-links">
