@@ -87,12 +87,73 @@ body {
 }
 
 .logo a {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
+    font-size: 1.75rem;
+    font-weight: 800;
     text-decoration: none;
+    background: linear-gradient(135deg, 
+        #1e293b 0%,     /* Dark slate */
+        #475569 25%,    /* Medium slate */
+        #64748b 50%,    /* Light slate */
+        #334155 75%,    /* Darker slate */
+        #0f172a 100%    /* Deepest slate */
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.025em;
+    transition: var(--transition);
+    text-shadow: none;
 }
 
+/* Add metallic shine effect */
+.logo a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.4) 50%, 
+        transparent 100%
+    );
+    animation: shine 3s ease-in-out infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Shine animation */
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+    50% {
+        left: 100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Hover effect */
+.logo a:hover {
+    background: linear-gradient(135deg, 
+        #0f172a 0%,     /* Deepest slate */
+        #334155 25%,    /* Darker slate */
+        #64748b 50%,    /* Light slate */
+        #475569 75%,    /* Medium slate */
+        #1e293b 100%    /* Dark slate */
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transform: scale(1.05);
+}
+
+/* Navigation */
 .nav-list {
     display: flex;
     list-style: none;
@@ -126,6 +187,7 @@ body {
     border-radius: 50%;
 }
 
+/* Button */
 .btn-download {
     display: inline-flex;
     align-items: center;
