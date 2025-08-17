@@ -639,7 +639,7 @@ body {
     content: '';
     position: absolute;
     top: 0;
-    left: 230px; /* Moved slightly right to accommodate wider date */
+    left: 230px;
     width: 3px;
     height: 100%;
     background: linear-gradient(to bottom, var(--color-primary), var(--color-accent));
@@ -648,7 +648,7 @@ body {
 
 .timeline-item {
     display: grid;
-    grid-template-columns: 210px 1fr; /* Increased first column width */
+    grid-template-columns: 210px 1fr;
     gap: var(--space-xl);
     margin-bottom: var(--space-xl);
     position: relative;
@@ -658,7 +658,7 @@ body {
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: 226px; /* Align dot with the new line position */
+    left: 226px;
     top: 8px;
     width: 8px;
     height: 8px;
@@ -672,19 +672,18 @@ body {
     font-weight: 600;
     color: var(--color-primary);
     text-align: right;
-    font-size: 0.85rem; /* Slightly smaller font */
+    font-size: 0.85rem;
     background: rgba(37, 99, 235, 0.1);
     padding: var(--space-xs);
     border-radius: 8px;
     height: fit-content;
-    width: 200px; /* Increased width to accommodate longer dates */
+    width: 200px;
     margin-left: auto;
     
-    /* Force single line */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 180px; /* Minimum width to prevent shrinking */
+    min-width: 180px;
 }
 
 .timeline-content {
@@ -694,7 +693,7 @@ body {
     padding: var(--space-lg);
     box-shadow: var(--shadow);
     transition: var(--transition);
-    margin-left: var(--space-md); /* Add margin to create more space from line */
+    margin-left: var(--space-md);
 }
 
 .timeline-content:hover {
@@ -1041,7 +1040,7 @@ body {
     }
     
     .nav-link::before {
-        display: none; /* Remove underline animation on mobile */
+        display: none;
     }
     
     /* Hero Mobile */
