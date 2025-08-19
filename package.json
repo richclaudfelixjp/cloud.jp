@@ -1,57 +1,29 @@
 {
   "name": "cloud-jp",
   "version": "1.0.0",
-  "description": "static website for Richclaud Felix",
+  "description": "Software QA Engineer portfolio website",
   "main": "index.html",
   "scripts": {
-    "test": "npm run lint:html && npm run lint:css && npm run lint:js",
-    "lint:html": "htmlhint \"**/*.html\"",
-    "lint:css": "stylelint \"**/*.css\"",
-    "lint:js": "eslint \"**/*.js\"",
-    "lint:html:fix": "htmlhint \"**/*.html\" --fix",
-    "lint:css:fix": "stylelint \"**/*.css\" --fix",
-    "lint:js:fix": "eslint \"**/*.js\" --fix",
-    "serve": "npx serve .",
-    "build": "echo 'No build step needed for static site'"
+    "test": "htmlhint *.html",
+    "serve": "serve -s . -l 3000",
+    "start": "serve -s . -l 3000"
   },
-  "keywords": [
-    "static-website",
-    "html",
-    "css",
-    "javascript"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/richclaudfelix3019/cloud.jp.git"
+  },
   "author": "richclaudfelix3019",
   "license": "MIT",
   "devDependencies": {
     "htmlhint": "^1.1.4",
-    "stylelint": "^15.11.0",
-    "stylelint-config-standard": "^34.0.0",
-    "eslint": "^8.57.0",
-    "eslint-config-standard": "^17.1.0",
     "serve": "^14.2.1"
   },
-  "htmlhint": {
+  "htmlhintConfig": {
     "tagname-lowercase": true,
     "attr-lowercase": true,
     "attr-value-double-quotes": true,
+    "doctype-first": true,
     "tag-pair": true,
-    "spec-char-escape": true,
-    "id-unique": true,
-    "src-not-empty": true,
     "title-require": true
-  },
-  "stylelint": {
-    "extends": ["stylelint-config-standard"],
-    "rules": {
-      "indentation": 2,
-      "string-quotes": "double"
-    }
-  },
-  "eslintConfig": {
-    "extends": ["standard"],
-    "env": {
-      "browser": true,
-      "es2021": true
-    }
   }
 }
