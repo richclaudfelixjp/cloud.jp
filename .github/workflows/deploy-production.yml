@@ -1,0 +1,77 @@
+name: Deploy to Production
+on:
+  repository_dispatch:
+    types: [staging-tests-passed]
+  workflow_dispatch:
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: デプロイ条件検証
+        run: |
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            echo "✅ E2Eテスト成功により自動デプロイを開始"
+          else
+            echo "✅ 手動デプロイが要求されました"
+          fi
+
+      - name: Netlify本番環境にデプロイ
+        run: |
+          curl -X POST -d {} "${{ secrets.NETLIFY_PROD_HOOK_URL }}"
+          echo "🚀 本番環境へのデプロイを開始"
+          
+      - name: デプロイ完了待機
+        run: |
+          echo "⏳ デプロイ完了を待機中..."
+          sleep 45
+          
+          for i in {1..12}; do
+            if curl -f -s https://cloudjp.netlify.app > /dev/null; then
+              echo "✅ 本番サイトが稼働中!"
+              break
+            fi
+            echo "⏳ 試行 $i: サイト準備中、待機中..."
+            sleep 10
+          done
+          
+      - name: 本番環境検証テスト実行
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PLAYWRIGHT_REPO_TOKEN }}
+          repository: richclaudfelixjp/Playwright-Project
+          event-type: cloudjp-test
+          client-payload: |
+            {
+              "environment": "production",
+              "url": "https://cloudjp.netlify.app",
+              "commit_sha": "${{ github.sha }}",
+              "branch": "${{ github.ref_name }}",
+              "verification_only": true
+            }
+            
+      - name: コミットステータス更新
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = '${{ github.event.client_payload.commit_sha }}' || '${{ github.sha }}';
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: sha,
+              state: 'success',
+              target_url: 'https://cloudjp.netlify.app',
+              description: '本番環境へのデプロイが正常完了',
+              context: 'cloudjp/successful-deployment'
+            });
+            
+      - name: 成功通知送信
+        run: |
+          echo "🎉 本番環境デプロイが正常完了!"
+          echo "🌐 公開サイト: https://cloudjp.netlify.app"
+          echo "📊 コミット: ${{ github.event.client_payload.commit_sha || github.sha }}"
+          echo "🔗 リポジトリ: ${{ github.repository }}"
+          echo "👤 デプロイ実行者: ${{ github.actor }}"
+          echo "⏰ デプロイ時刻: $(date -u)"
