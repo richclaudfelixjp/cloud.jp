@@ -10,9 +10,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/richclaudfelix3019/cloud.jp.git"
+    "url": "git+https://github.com/richclaudfelixjp/cloud.jp.git"
   },
-  "author": "richclaudfelix3019",
+  "author": "richclaudfelixjp",
   "license": "MIT",
   "devDependencies": {
     "htmlhint": "^1.1.4",

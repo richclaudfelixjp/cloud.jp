@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Check if package.json exists
+      - name: package.jsonの存在確認
         id: check-package
         run: |
           if [ -f "package.json" ]; then
@@ -20,24 +20,24 @@ jobs:
             echo "has-package=false" >> $GITHUB_OUTPUT
           fi
           
-      - name: Basic validation (no dependencies)
+      - name: 基本バリデーション (依存関係なし)
         if: steps.check-package.outputs.has-package == 'false'
         run: |
-          echo "⚡ No package.json - running basic validation"
-          find . -name "*.html" -exec echo "Found: {}" \;
-          echo "✅ Static files validated"
+          echo "⚡ package.jsonなし - 基本バリデーション実行中"
+          find . -name "*.html" -exec echo "発見: {}" \;
+          echo "✅ 静的ファイル検証完了"
           
-      - name: Minimal validation (with dependencies)
+      - name: 最小バリデーション (依存関係あり)
         if: steps.check-package.outputs.has-package == 'true'
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
           
-      - name: Install minimal dependencies
+      - name: 最小依存関係のインストール
         if: steps.check-package.outputs.has-package == 'true'
         run: npm ci
         
-      - name: Run HTML validation
+      - name: HTMLバリデーション実行
         if: steps.check-package.outputs.has-package == 'true'
         run: npm test
