@@ -1,0 +1,88 @@
+name: Emergency Rollback
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'ロールバック対象環境'
+        required: true
+        type: choice
+        options:
+        - staging
+        - production
+      reason:
+        description: 'ロールバック理由'
+        required: true
+        type: string
+
+jobs:
+  execute-rollback:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: 緊急ロールバック開始
+        run: |
+          echo "🚨 緊急ロールバックを開始"
+          echo "環境: ${{ github.event.inputs.environment }}"
+          echo "理由: ${{ github.event.inputs.reason }}"
+          echo "時刻: $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
+          echo "実行者: ${{ github.actor }}"
+          
+      - name: ロールバック実行
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            curl -X POST -d {} "${{ secrets.NETLIFY_PROD_HOOK_URL }}"
+            SITE_URL="https://cloudjp.netlify.app"
+          else
+            curl -X POST -d {} "${{ secrets.NETLIFY_STAGING_HOOK_URL }}"
+            SITE_URL="https://staging-cloudjp.netlify.app"
+          fi
+          echo "SITE_URL=$SITE_URL" >> $GITHUB_ENV
+          echo "🚀 ロールバックを開始"
+          
+      - name: 待機と検証
+        run: |
+          echo "⏳ ロールバック完了まで60秒待機中..."
+          sleep 60
+          
+          if curl -f -s $SITE_URL > /dev/null; then
+            echo "✅ ロールバック成功 - サイト稼働中"
+          else
+            echo "❌ ロールバック失敗 - サイト応答なし"
+            exit 1
+          fi
+          
+      - name: ロールバック課題作成
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const success = '${{ job.status }}' === 'success';
+            const currentTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 緊急ロールバック - ${{ github.event.inputs.environment }}`,
+              body: `
+            ## ロールバック報告
+            
+            **環境:** ${{ github.event.inputs.environment }}
+            **理由:** ${{ github.event.inputs.reason }}
+            **時刻:** ${currentTime} UTC
+            **実行者:** ${{ github.actor }}
+            **ステータス:** ${success ? '✅ 成功' : '❌ 失敗'}
+            **URL:** ${process.env.SITE_URL}
+            
+            ## 次のステップ
+            - [ ] サイト機能を手動で確認
+            - [ ] 元の問題を修正
+            - [ ] 再デプロイ前にステージングで修正をテスト
+            `,
+              labels: ['rollback', '${{ github.event.inputs.environment }}', 'incident']
+            });
+            
+      - name: ロールバック完了
+        run: |
+          echo "🎉 ロールバック完了 $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
+          echo "🌐 サイト確認: $SITE_URL"
