@@ -6,6 +6,11 @@ on:
     types: [completed]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  deployments: write
+  statuses: write
+
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
@@ -13,26 +18,50 @@ jobs:
     environment: staging
     
     steps:
-      - name: Netlifyステージング環境にデプロイ
+      - name: デプロイ開始記録
         run: |
-          curl -X POST -d {} "${{ secrets.NETLIFY_STAGING_HOOK_URL }}"
           echo "🚀 ステージング環境へのデプロイを開始"
+          echo "⏰ 開始時間: $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
+          echo "👤 実行者: ${{ github.actor }}"
+          
+      - name: Netlifyステージング環境にデプロイ
+        id: deploy
+        run: |
+          DEPLOY_RESULT=$(curl -X POST -d {} "${{ secrets.NETLIFY_STAGING_HOOK_URL }}" -s)
+          echo "deploy_id=$(date +%s)" >> $GITHUB_OUTPUT
+          echo "🔗 デプロイURL: https://staging-cloudjp.netlify.app"
           
       - name: デプロイ完了待機
+        id: verify
         run: |
           echo "⏳ デプロイ完了を待機中..."
           sleep 45
           
-          for i in {1..12}; do
-            if curl -f -s https://staging-cloudjp.netlify.app > /dev/null; then
+          MAX_ATTEMPTS=12
+          ATTEMPT=1
+          SITE_URL="https://staging-cloudjp.netlify.app"
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            if curl -f -s "$SITE_URL" > /dev/null; then
               echo "✅ ステージングサイトが稼働中!"
+              echo "status=success" >> $GITHUB_OUTPUT
               break
             fi
-            echo "⏳ 試行 $i: サイト準備中、待機中..."
+            
+            echo "⏳ 試行 $ATTEMPT: サイト準備中、待機中..."
+            
+            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+              echo "❌ デプロイ検証に失敗しました"
+              echo "status=failure" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            ATTEMPT=$((ATTEMPT+1))
             sleep 10
           done
           
       - name: Playwrightテスト実行
+        if: steps.verify.outputs.status == 'success'
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.PLAYWRIGHT_REPO_TOKEN }}
@@ -43,7 +72,8 @@ jobs:
               "environment": "staging",
               "url": "https://staging-cloudjp.netlify.app",
               "commit_sha": "${{ github.sha }}",
-              "branch": "${{ github.ref_name }}"
+              "branch": "${{ github.ref_name }}",
+              "triggered_by": "${{ github.actor }}"
             }
             
       - name: コミットステータス更新
