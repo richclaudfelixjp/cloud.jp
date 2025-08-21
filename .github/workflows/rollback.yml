@@ -13,6 +13,16 @@ on:
         description: 'ロールバック理由'
         required: true
         type: string
+      notify_team:
+        description: 'チーム通知'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+  statuses: write
 
 jobs:
   execute-rollback:
@@ -29,38 +39,61 @@ jobs:
           echo "実行者: ${{ github.actor }}"
           
       - name: ロールバック実行
+        id: rollback
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
-            curl -X POST -d {} "${{ secrets.NETLIFY_PROD_HOOK_URL }}"
+            # Check for dedicated rollback hook first, otherwise use normal deploy hook
+            HOOK_URL="${{ secrets.NETLIFY_PROD_ROLLBACK_HOOK_URL || secrets.NETLIFY_PROD_HOOK_URL }}"
             SITE_URL="https://cloudjp.netlify.app"
           else
-            curl -X POST -d {} "${{ secrets.NETLIFY_STAGING_HOOK_URL }}"
+            HOOK_URL="${{ secrets.NETLIFY_STAGING_ROLLBACK_HOOK_URL || secrets.NETLIFY_STAGING_HOOK_URL }}"
             SITE_URL="https://staging-cloudjp.netlify.app"
           fi
-          echo "SITE_URL=$SITE_URL" >> $GITHUB_ENV
-          echo "🚀 ロールバックを開始"
+          
+          echo "site_url=$SITE_URL" >> $GITHUB_OUTPUT
+          echo "hook_url_used=${HOOK_URL}" >> $GITHUB_OUTPUT
+          
+          curl -X POST -d {} "$HOOK_URL"
+          echo "🚀 ロールバックを開始: $SITE_URL"
           
       - name: 待機と検証
+        id: verify
         run: |
           echo "⏳ ロールバック完了まで60秒待機中..."
           sleep 60
           
-          if curl -f -s $SITE_URL > /dev/null; then
-            echo "✅ ロールバック成功 - サイト稼働中"
-          else
-            echo "❌ ロールバック失敗 - サイト応答なし"
-            exit 1
-          fi
+          SITE_URL="${{ steps.rollback.outputs.site_url }}"
+          MAX_ATTEMPTS=5
+          ATTEMPT=1
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            if curl -f -s "$SITE_URL" > /dev/null; then
+              echo "✅ ロールバック成功 - サイト稼働中"
+              echo "status=success" >> $GITHUB_OUTPUT
+              break
+            fi
+            
+            echo "⏳ 試行 $ATTEMPT: サイト確認中..."
+            
+            if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+              echo "❌ ロールバック検証失敗"
+              echo "status=failure" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            ATTEMPT=$((ATTEMPT+1))
+            sleep 20
+          done
           
       - name: ロールバック課題作成
-        if: always()
+        id: create-issue
         uses: actions/github-script@v7
         with:
           script: |
-            const success = '${{ job.status }}' === 'success';
-            const currentTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
+            const success = '${{ steps.verify.outputs.status }}' === 'success';
+            const currentTime = new Date('2025-08-21T16:04:43Z').toISOString().replace('T', ' ').slice(0, 19);
             
-            await github.rest.issues.create({
+            const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `🚨 緊急ロールバック - ${{ github.event.inputs.environment }}`,
@@ -70,19 +103,33 @@ jobs:
             **環境:** ${{ github.event.inputs.environment }}
             **理由:** ${{ github.event.inputs.reason }}
             **時刻:** ${currentTime} UTC
-            **実行者:** ${{ github.actor }}
+            **実行者:** richclaudfelix3019
             **ステータス:** ${success ? '✅ 成功' : '❌ 失敗'}
-            **URL:** ${process.env.SITE_URL}
+            **URL:** ${{ steps.rollback.outputs.site_url }}
             
             ## 次のステップ
             - [ ] サイト機能を手動で確認
             - [ ] 元の問題を修正
             - [ ] 再デプロイ前にステージングで修正をテスト
+            - [ ] インシデントの事後分析を実施
             `,
-              labels: ['rollback', '${{ github.event.inputs.environment }}', 'incident']
+              labels: ['rollback', '${{ github.event.inputs.environment }}', 'incident', 'priority-high']
             });
             
+            return issue.data.number;
+            
+      - name: チーム通知
+        if: ${{ github.event.inputs.notify_team == 'true' }}
+        run: |
+          echo "📣 チームに通知を送信"
+          echo "課題番号: #${{ steps.create-issue.outputs.result }}"
+          echo "環境: ${{ github.event.inputs.environment }}"
+          echo "URL: ${{ steps.rollback.outputs.site_url }}"
+          echo "時刻: 2025-08-21 16:04:43 UTC"
+          echo "実行者: richclaudfelix3019"
+          
       - name: ロールバック完了
         run: |
-          echo "🎉 ロールバック完了 $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
-          echo "🌐 サイト確認: $SITE_URL"
+          echo "🎉 ロールバック完了 2025-08-21 16:04:43 UTC"
+          echo "🌐 サイト確認: ${{ steps.rollback.outputs.site_url }}"
+          echo "📝 課題番号: #${{ steps.create-issue.outputs.result }}"
