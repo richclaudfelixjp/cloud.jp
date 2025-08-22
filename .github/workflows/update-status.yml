@@ -39,4 +39,4 @@ jobs:
               context: `cloudjp/${environment}-playwright`
             });
             
-            console.log(`✅ Updated commit status for ${environment} tests: ${isSuccess ? 'success' : 'failure'}`);
+            console.log(`✅ コミットステータス更新: ${environment} テスト結果: ${isSuccess ? '成功' : '失敗'}`);
