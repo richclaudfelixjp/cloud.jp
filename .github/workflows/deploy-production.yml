@@ -1,7 +1,7 @@
 name: Deploy to Production
 on:
-  repository_dispatch:
-    types: [e2e-test-complete]
+  push:
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -14,19 +14,13 @@ jobs:
   deploy-production:
     name: 本番環境デプロイ
     runs-on: ubuntu-latest
-    if: |
-      (github.event_name == 'repository_dispatch' && 
-      github.event.client_payload.environment == 'staging' && 
-      github.event.client_payload.test_result == 'passed') || 
-      github.event_name == 'workflow_dispatch'
     environment: production
     
     steps:
       - name: デプロイ条件検証
         run: |
-          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-            echo "✅ E2Eテスト成功により自動デプロイを開始"
-            echo "🧪 テスト実行ID: ${{ github.event.client_payload.run_id }}"
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "✅ Master branchへのマージにより自動デプロイを開始"
           else
             echo "✅ 手動デプロイが要求されました"
           fi
@@ -79,7 +73,7 @@ jobs:
             {
               "environment": "production",
               "url": "https://cloudjp.netlify.app",
-              "commit_sha": "${{ github.event.client_payload.commit_sha || github.sha }}",
+              "commit_sha": "${{ github.sha }}",
               "branch": "${{ github.ref_name }}",
               "verification_only": true,
               "triggered_by": "${{ github.actor }}"
@@ -89,7 +83,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const sha = '${{ github.event.client_payload.commit_sha }}' || '${{ github.sha }}';
+            const sha = '${{ github.sha }}';
             const timestamp = new Date().toISOString();
             
             await github.rest.issues.create({
@@ -118,7 +112,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const sha = '${{ github.event.client_payload.commit_sha }}' || '${{ github.sha }}';
+            const sha = '${{ github.sha }}';
             github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -126,14 +120,14 @@ jobs:
               state: 'success',
               target_url: 'https://cloudjp.netlify.app',
               description: '本番環境へのデプロイが正常完了',
-              context: 'cloudjp/successful-deployment'
+              context: 'cloudjp/production-deployment'
             });
             
       - name: 成功通知送信
         run: |
           echo "🎉 本番環境デプロイが正常完了!"
           echo "🌐 公開サイト: https://cloudjp.netlify.app"
-          echo "📊 コミット: ${{ github.event.client_payload.commit_sha || github.sha }}"
+          echo "📊 コミット: ${{ github.sha }}"
           echo "🔗 リポジトリ: ${{ github.repository }}"
           echo "👤 デプロイ実行者: ${{ github.actor }}"
           echo "⏰ デプロイ時刻: $(date -u)"
