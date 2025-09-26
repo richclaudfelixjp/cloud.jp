@@ -1,25 +1,36 @@
+# cloud.jp ポートフォリオサイト用 継続的インテグレーション (CI) ワークフロー
+# 目的: コード品質を保証し、HTMLバリデーションを実行
 name: cloudjp CI
+
+# トリガー条件: masterまたはstagingブランチへのプッシュ、またはプルリクエスト作成時
 on:
   push:
-    branches: [ master, staging ]
+    branches: [ master, staging ]  # 本番およびステージング環境用ブランチ
   pull_request:
-    branches: [ master, staging ]
+    branches: [ master, staging ]  # コードレビュー時の品質チェック
 
 jobs:
   cloudjp-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Ubuntu最新版での実行を保証
     steps:
+      # ソースコードのチェックアウト
       - uses: actions/checkout@v4
       
+      # プロジェクト依存関係の検出
+      # package.jsonの存在により、HTMLHintテストの実行可否を判定
       - name: package.jsonの存在確認
         id: check-package
         run: |
           if [ -f "package.json" ]; then
             echo "has-package=true" >> $GITHUB_OUTPUT
+            echo "✅ package.json発見 - HTMLHintによる詳細検証を実行"
           else
             echo "has-package=false" >> $GITHUB_OUTPUT
+            echo "⚠️ package.jsonなし - 基本検証のみ実行"
           fi
           
+      # 軽量バリデーション: 依存関係がない場合の基本チェック
+      # 静的HTMLファイルの存在確認のみ実施
       - name: 基本バリデーション (依存関係なし)
         if: steps.check-package.outputs.has-package == 'false'
         run: |
@@ -27,17 +38,23 @@ jobs:
           find . -name "*.html" -exec echo "発見: {}" \;
           echo "✅ 静的ファイル検証完了"
           
+      # Node.js環境のセットアップ
+      # HTMLHintによる詳細なHTMLバリデーションの準備
       - name: 最小バリデーション (依存関係あり)
         if: steps.check-package.outputs.has-package == 'true'
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: '18'  # 安定版Node.jsを使用
+          cache: 'npm'        # 依存関係キャッシュでビルド時間短縮
           
+      # HTMLHintの依存関係インストール
+      # package-lock.jsonを使用して確実なバージョン管理
       - name: 最小依存関係のインストール
         if: steps.check-package.outputs.has-package == 'true'
-        run: npm ci
+        run: npm ci  # npm installより高速で本番環境向け
         
+      # HTMLバリデーション実行
+      # HTMLHintルールに基づく品質チェック (package.jsonで設定済み)
       - name: HTMLバリデーション実行
         if: steps.check-package.outputs.has-package == 'true'
-        run: npm test
+        run: npm test  # "htmlhint *.html" を実行

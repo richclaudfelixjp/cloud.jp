@@ -1,44 +1,57 @@
+# cloud.jp ポートフォリオサイト - ステージング環境デプロイワークフロー
+# 目的: stagingブランチの変更をステージング環境 (staging-cloudjp.netlify.app) にデプロイ
+# 本番デプロイ前の最終検証とPlaywrightテストの実行
 name: Deploy to Staging
+
+# トリガー条件
 on:
   push:
-    branches: [staging]
-  workflow_dispatch:
+    branches: [staging]  # stagingブランチへのプッシュ時
+  workflow_dispatch:     # 手動実行 (テスト目的)
 
+# GitHub権限設定: ステージング環境用の最小権限
 permissions:
-  contents: read
-  deployments: write
-  statuses: write
+  contents: read      # リポジトリ内容の読み取り
+  deployments: write  # デプロイメント記録の作成
+  statuses: write     # コミットステータスの更新
 
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-    environment: staging
+    environment: staging  # ステージング環境保護設定を適用
     
     steps:
+      # ステージングデプロイ開始ログ
+      # デプロイの開始時刻とトリガー情報を記録
       - name: デプロイ開始記録
         run: |
           echo "🚀 ステージング環境へのデプロイを開始"
           echo "⏰ 開始時間: $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
           echo "👤 実行者: ${{ github.actor }}"
           
+      # Netlifyステージング環境へのデプロイ実行
+      # WebhookトリガーによるNetlifyのビルド&デプロイ開始
       - name: Netlifyステージング環境にデプロイ
         id: deploy
         run: |
           DEPLOY_RESULT=$(curl -X POST -d {} "${{ secrets.NETLIFY_STAGING_HOOK_URL }}" -s)
-          echo "deploy_id=$(date +%s)" >> $GITHUB_OUTPUT
+          echo "deploy_id=$(date +%s)" >> $GITHUB_OUTPUT  # デプロイIDを一意生成
           echo "🔗 デプロイURL: https://staging-cloudjp.netlify.app"
           
+      # デプロイ完了の確認とヘルスチェック
+      # Netlifyビルド完了とサイト稼働の確認
       - name: デプロイ完了待機
         id: verify
         run: |
           echo "⏳ デプロイ完了を待機中..."
-          sleep 45
+          sleep 45  # Netlifyビルド時間を考慮した初期待機
           
-          MAX_ATTEMPTS=12
+          MAX_ATTEMPTS=12    # 最大試行回数 (合計2分間)
           ATTEMPT=1
-          SITE_URL="https://staging-cloudjp.netlify.app"
+          SITE_URL="https://staging-cloudjp.netlify.app"  # ステージングサイトURL
           
+          # サイトの稼働確認ループ
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
             if curl -f -s "$SITE_URL" > /dev/null; then
               echo "✅ ステージングサイトが稼働中!"
@@ -48,6 +61,7 @@ jobs:
             
             echo "⏳ 試行 $ATTEMPT: サイト準備中、待機中..."
             
+            # 最大試行回数に達した場合は失敗とする
             if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
               echo "❌ デプロイ検証に失敗しました"
               echo "status=failure" >> $GITHUB_OUTPUT
@@ -55,15 +69,17 @@ jobs:
             fi
             
             ATTEMPT=$((ATTEMPT+1))
-            sleep 10
+            sleep 10  # 10秒間隔で再試行
           done
           
+      # ステージング環境でのE2Eテスト実行
+      # 外部PlaywrightリポジトリによるフルE2Eテストスイートの実行
       - name: Playwrightステージングテスト実行
         if: steps.verify.outputs.status == 'success'
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.PLAYWRIGHT_REPO_TOKEN }}
-          repository: richclaudfelixjp/Playwright-Project
+          token: ${{ secrets.PLAYWRIGHT_REPO_TOKEN }}      # Playwrightリポジトリアクセス用トークン
+          repository: richclaudfelixjp/Playwright-Project  # 外部テストリポジトリ
           event-type: cloudjp-test
           client-payload: |
             {
@@ -74,10 +90,13 @@ jobs:
               "triggered_by": "${{ github.actor }}"
             }
             
+      # Playwrightテスト実行中の一時ステータス更新
+      # テスト完了まではpendingステータスを設定
       - name: コミットステータス更新 (一時)
         uses: actions/github-script@v7
         with:
           script: |
+            // Playwrightテスト実行中の一時ステータス設定
             github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
