@@ -124,7 +124,7 @@ jobs:
             ### 関連変更
             - ${sha}
             `,
-              labels: ['deployment', 'production']  # ラベルによる分類
+              labels: ['deployment', 'production']  // ラベルによる分類
             });
             
       # GitHubコミットステータスの更新
