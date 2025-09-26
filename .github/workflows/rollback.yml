@@ -1,4 +1,9 @@
+# cloud.jp ポートフォリオサイト - 緊急ロールバックワークフロー
+# 目的: 本番またはステージング環境での問題発生時の迅速な復旧
+# 手動実行専用 - 緊急事態対応のためのワークフロー
 name: Emergency Rollback
+
+# 手動実行のみ (緊急時対応)
 on:
   workflow_dispatch:
     inputs:
@@ -7,8 +12,8 @@ on:
         required: true
         type: choice
         options:
-        - staging
-        - production
+        - staging     # ステージング環境
+        - production  # 本番環境
       reason:
         description: 'ロールバック理由'
         required: true
@@ -19,17 +24,20 @@ on:
         default: true
         type: boolean
 
+# 緊急対応用の権限設定
 permissions:
-  contents: read
-  issues: write
-  statuses: write
+  contents: read  # リポジトリ内容の読み取り
+  issues: write   # インシデント記録用イシューの作成
+  statuses: write # ロールバック状況の更新
 
 jobs:
   execute-rollback:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event.inputs.environment }}  # 選択された環境に応じた保護設定
     
     steps:
+      # 緊急ロールバック開始ログ
+      # ロールバック理由と実行者の記録 (トレーサビリティ確保)
       - name: 緊急ロールバック開始
         run: |
           echo "🚨 緊急ロールバックを開始"
@@ -38,14 +46,18 @@ jobs:
           echo "時刻: $(date -u '+%Y-%m-%d %H:%M:%S') UTC"
           echo "実行者: ${{ github.actor }}"
           
+      # 環境に応じたロールバック実行
+      # 専用ロールバックWebhookまたは通常デプロイWebhookを使用
       - name: ロールバック実行
         id: rollback
         run: |
+          # 環境に応じたWebhook URL の選択
           if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
-            # Check for dedicated rollback hook first, otherwise use normal deploy hook
+            # 本番環境: 専用ロールバックフックまたは通常デプロイフック
             HOOK_URL="${{ secrets.NETLIFY_PROD_ROLLBACK_HOOK_URL || secrets.NETLIFY_PROD_HOOK_URL }}"
             SITE_URL="https://cloudjp.netlify.app"
           else
+            # ステージング環境: 専用ロールバックフックまたは通常デプロイフック
             HOOK_URL="${{ secrets.NETLIFY_STAGING_ROLLBACK_HOOK_URL || secrets.NETLIFY_STAGING_HOOK_URL }}"
             SITE_URL="https://staging-cloudjp.netlify.app"
           fi
@@ -53,19 +65,23 @@ jobs:
           echo "site_url=$SITE_URL" >> $GITHUB_OUTPUT
           echo "hook_url_used=${HOOK_URL}" >> $GITHUB_OUTPUT
           
+          # Netlifyロールバック実行
           curl -X POST -d {} "$HOOK_URL"
           echo "🚀 ロールバックを開始: $SITE_URL"
           
+      # ロールバック完了の確認
+      # サイトの復旧確認と稼働ステータスの検証
       - name: 待機と検証
         id: verify
         run: |
           echo "⏳ ロールバック完了まで60秒待機中..."
-          sleep 60
+          sleep 60  # ロールバック処理時間を考慮した待機
           
           SITE_URL="${{ steps.rollback.outputs.site_url }}"
-          MAX_ATTEMPTS=5
+          MAX_ATTEMPTS=5  # 緊急対応のため試行回数を制限
           ATTEMPT=1
           
+          # サイト復旧確認ループ
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
             if curl -f -s "$SITE_URL" > /dev/null; then
               echo "✅ ロールバック成功 - サイト稼働中"
@@ -75,6 +91,7 @@ jobs:
             
             echo "⏳ 試行 $ATTEMPT: サイト確認中..."
             
+            # 最大試行回数に達した場合は失敗とする
             if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
               echo "❌ ロールバック検証失敗"
               echo "status=failure" >> $GITHUB_OUTPUT
@@ -82,9 +99,11 @@ jobs:
             fi
             
             ATTEMPT=$((ATTEMPT+1))
-            sleep 20
+            sleep 20  # 20秒間隔で再試行
           done
           
+      # インシデント記録用イシューの作成
+      # ロールバック詳細の記録と事後対応のトラッキング
       - name: ロールバック課題作成
         id: create-issue
         uses: actions/github-script@v7
@@ -93,6 +112,7 @@ jobs:
             const success = '${{ steps.verify.outputs.status }}' === 'success';
             const currentTime = new Date('2025-08-21T16:04:43Z').toISOString().replace('T', ' ').slice(0, 19);
             
+            // インシデント記録用イシューの作成
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -118,6 +138,8 @@ jobs:
             
             return issue.data.number;
             
+      # チーム通知の送信
+      # チームメンバーへのロールバック完了通知
       - name: チーム通知
         if: ${{ github.event.inputs.notify_team == 'true' }}
         run: |
@@ -128,6 +150,8 @@ jobs:
           echo "時刻: 2025-08-21 16:04:43 UTC"
           echo "実行者: richclaudfelix3019"
           
+      # ロールバック完了の最終確認
+      # ロールバック処理の完了とアクセス情報の提供
       - name: ロールバック完了
         run: |
           echo "🎉 ロールバック完了 2025-08-21 16:04:43 UTC"

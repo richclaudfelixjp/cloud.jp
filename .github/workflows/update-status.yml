@@ -1,15 +1,23 @@
+# cloud.jp ポートフォリオサイト - コミットステータス更新ワークフロー
+# 目的: 外部Playwrightリポジトリからのテスト結果を受信しコミットステータスを更新
+# Repository Dispatch イベントによるリポジトリ間通信
 name: Update Commit Status
+
+# 外部リポジトリからのイベント受信 (Playwrightテスト完了通知)
 on:
   repository_dispatch:
-    types: [e2e-test-complete]
+    types: [e2e-test-complete]  # PlaywrightリポジトリからのE2Eテスト完了イベント
 
+# コミットステータス更新権限
 permissions:
-  statuses: write
+  statuses: write  # GitHubコミットステータスの更新
 
 jobs:
   update-status:
     runs-on: ubuntu-latest
     steps:
+      # ペイロード情報の抽出
+      # Playwrightリポジトリから送信されたテスト結果の解析
       - name: ステータス情報取得
         id: payload
         run: |
@@ -18,17 +26,25 @@ jobs:
           echo "environment=${{ github.event.client_payload.environment }}" >> $GITHUB_OUTPUT
           echo "run_id=${{ github.event.client_payload.run_id }}" >> $GITHUB_OUTPUT
           
+      # Playwrightテスト結果に基づくコミットステータス更新
+      # 成功/失敗に応じたステータスとリンクの設定
       - name: コミットステータス更新
         uses: actions/github-script@v7
         with:
           script: |
+            // テスト結果の判定
             const isSuccess = '${{ steps.payload.outputs.test_result }}' === 'passed';
             const environment = '${{ steps.payload.outputs.environment }}';
+            
+            // 環境に応じたサイトURLの設定
             const envUrl = environment === 'production' 
               ? 'https://cloudjp.netlify.app' 
               : 'https://staging-cloudjp.netlify.app';
+            
+            // 日本語でのステータス説明
             const description = `${environment}環境でPlaywrightテスト${isSuccess ? '成功' : '失敗'}`;
             
+            // GitHubコミットステータスの更新
             github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -36,7 +52,10 @@ jobs:
               state: isSuccess ? 'success' : 'failure',
               target_url: `https://github.com/richclaudfelixjp/Playwright-Project/actions/runs/${{ steps.payload.outputs.run_id }}`,
               description: description,
-              context: `cloudjp/${environment}-playwright`
+              context: `cloudjp/${environment}-playwright`  // 環境別のコンテキスト識別
             });
             
+            // 実行ログ出力
             console.log(`✅ コミットステータス更新: ${environment} テスト結果: ${isSuccess ? '成功' : '失敗'}`);
+            console.log(`📊 対象コミット: ${{ steps.payload.outputs.commit_sha }}`);
+            console.log(`🔗 テスト詳細: https://github.com/richclaudfelixjp/Playwright-Project/actions/runs/${{ steps.payload.outputs.run_id }}`);
