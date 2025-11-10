@@ -1,4 +1,4 @@
-# cloud.jp ポートフォリオサイト - コミットステータス更新ワークフロー
+# cloudjp ポートフォリオサイト - コミットステータス更新ワークフロー
 # 目的: 外部Playwrightリポジトリからのテスト結果を受信しコミットステータスを更新
 # Repository Dispatch イベントによるリポジトリ間通信
 name: Update Commit Status
@@ -50,7 +50,7 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ steps.payload.outputs.commit_sha }}',
               state: isSuccess ? 'success' : 'failure',
-              target_url: `https://github.com/richclaudfelixjp/Playwright-Project/actions/runs/${{ steps.payload.outputs.run_id }}`,
+              target_url: `https://github.com/richclaudfelixjp/playwright-project/actions/runs/${{ steps.payload.outputs.run_id }}`,
               description: description,
               context: `cloudjp/${environment}-playwright`  // 環境別のコンテキスト識別
             });
@@ -58,4 +58,4 @@ jobs:
             // 実行ログ出力
             console.log(`✅ コミットステータス更新: ${environment} テスト結果: ${isSuccess ? '成功' : '失敗'}`);
             console.log(`📊 対象コミット: ${{ steps.payload.outputs.commit_sha }}`);
-            console.log(`🔗 テスト詳細: https://github.com/richclaudfelixjp/Playwright-Project/actions/runs/${{ steps.payload.outputs.run_id }}`);
+            console.log(`🔗 テスト詳細: https://github.com/richclaudfelixjp/playwright-project/actions/runs/${{ steps.payload.outputs.run_id }}`);
