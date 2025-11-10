@@ -1,4 +1,4 @@
-# cloud.jp ポートフォリオサイト - 本番環境デプロイワークフロー
+# cloudjp ポートフォリオサイト - 本番環境デプロイワークフロー
 # 目的: masterブランチの変更を本番環境 (cloudjp.netlify.app) に自動デプロイ
 # Netlify Webhookを使用したゼロダウンタイムデプロイメント
 name: Deploy to Production
@@ -83,7 +83,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.PLAYWRIGHT_REPO_TOKEN }}      # Playwrightリポジトリアクセス用トークン
-          repository: richclaudfelixjp/Playwright-Project  # 外部テストリポジトリ
+          repository: richclaudfelixjp/playwright-project  # 外部テストリポジトリ
           event-type: cloudjp-test
           client-payload: |
             {

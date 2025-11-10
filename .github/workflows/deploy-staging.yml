@@ -1,4 +1,4 @@
-# cloud.jp ポートフォリオサイト - ステージング環境デプロイワークフロー
+# cloudjp ポートフォリオサイト - ステージング環境デプロイワークフロー
 # 目的: stagingブランチの変更をステージング環境 (staging-cloudjp.netlify.app) にデプロイ
 # 本番デプロイ前の最終検証とPlaywrightテストの実行
 name: Deploy to Staging
@@ -79,7 +79,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.PLAYWRIGHT_REPO_TOKEN }}      # Playwrightリポジトリアクセス用トークン
-          repository: richclaudfelixjp/Playwright-Project  # 外部テストリポジトリ
+          repository: richclaudfelixjp/playwright-project  # 外部テストリポジトリ
           event-type: cloudjp-test
           client-payload: |
             {

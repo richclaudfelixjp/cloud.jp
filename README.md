@@ -1,6 +1,6 @@
-# cloud.jp - QAエンジニアポートフォリオサイト
+# cloudjp - ソフトウェアエンジニアポートフォリオサイト
 
-高度なCI/CD実践と自動テストを紹介するQAエンジニア向けポートフォリオサイト
+高度なCI/CD実践と自動テストを紹介するソフトウェアエンジニア向けポートフォリオサイト
 
 ## ワークフロー概要:
 
@@ -27,7 +27,7 @@
 
 ## 🧪 自動テスト連携
 
-本プロジェクトは[Playwright](https://github.com/richclaudfelixjp/Playwright-Project)でE2Eテストを自動実行:
+本プロジェクトは[Playwright](https://github.com/richclaudfelixjp/playwright-project)でE2Eテストを自動実行:
 - ステージングへのPR作成時
 - ステージングデプロイ後
 - 本番デプロイ後
