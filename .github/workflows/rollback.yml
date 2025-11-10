@@ -1,4 +1,4 @@
-# cloud.jp ポートフォリオサイト - 緊急ロールバックワークフロー
+# cloudjp ポートフォリオサイト - 緊急ロールバックワークフロー
 # 目的: 本番またはステージング環境での問題発生時の迅速な復旧
 # 手動実行専用 - 緊急事態対応のためのワークフロー
 name: Emergency Rollback
@@ -123,7 +123,7 @@ jobs:
             **環境:** ${{ github.event.inputs.environment }}
             **理由:** ${{ github.event.inputs.reason }}
             **時刻:** ${currentTime} UTC
-            **実行者:** richclaudfelix3019
+            **実行者:** richclaudfelixjp
             **ステータス:** ${success ? '✅ 成功' : '❌ 失敗'}
             **URL:** ${{ steps.rollback.outputs.site_url }}
             
@@ -148,7 +148,7 @@ jobs:
           echo "環境: ${{ github.event.inputs.environment }}"
           echo "URL: ${{ steps.rollback.outputs.site_url }}"
           echo "時刻: 2025-08-21 16:04:43 UTC"
-          echo "実行者: richclaudfelix3019"
+          echo "実行者: richclaudfelixjp"
           
       # ロールバック完了の最終確認
       # ロールバック処理の完了とアクセス情報の提供

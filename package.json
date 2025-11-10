@@ -1,7 +1,7 @@
 {
-  "name": "cloud-jp",
+  "name": "cloudjp",
   "version": "1.0.0",
-  "description": "Software QA Engineer portfolio website",
+  "description": "Software Engineer Portfolio Website",
   "main": "index.html",
   "scripts": {
     "test": "htmlhint *.html",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/richclaudfelixjp/cloud.jp.git"
+    "url": "git+https://github.com/richclaudfelixjp/cloudjp-frontend.git"
   },
   "author": "richclaudfelixjp",
   "license": "MIT",
