@@ -1,36 +1,48 @@
-/* Modern CSS Reset */
+/* cloudjp ポートフォリオサイト - メインスタイルシート
+ * 目的: レスポンシブデザイン、ダーク/ライトテーマ、アニメーション効果の実装
+ */
+
+/* モダンCSSリセット
+ * 全要素のデフォルトマージン・パディングをリセットし、box-sizingを統一
+ */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* CSS変数定義
+ * テーマカラー、スペーシング、トランジション設定を一元管理
+ */
 :root {
-    /* Light Theme Colors */
+    /* プライマリカラー設定 */
     --color-primary: #2563eb;
     --color-secondary: #64748b;
     --color-accent: #0ea5e9;
     
+    /* 背景カラー設定 */
     --bg-light: #ffffff;
     --bg-dark: #0f172a;
     --bg-gray: #f8fafc;
     --bg-card: #ffffff;
     --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     
+    /* テキストカラー設定 */
     --text-primary: #0f172a;
     --text-secondary: #64748b;
     --text-light: #94a3b8;
     --text-white: #ffffff;
     
+    /* ボーダー・シャドウ設定 */
     --border-color: #e2e8f0;
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     --shadow-dark: 0 4px 6px -1px rgb(0 0 0 / 0.3);
     
-    /* Typography */
+    /* タイポグラフィ設定 */
     --font-family: 'Inter', 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
     
-    /* Spacing */
+    /* スペーシング設定 */
     --space-xs: 0.5rem;
     --space-sm: 1rem;
     --space-md: 1.5rem;
@@ -38,14 +50,14 @@
     --space-xl: 3rem;
     --space-2xl: 4rem;
     
-    /* Transitions */
+    /* トランジション設定 */
     --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Base Styles */
+/* 基本スタイル設定 */
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 70px;
+    scroll-padding-top: 70px;  /* 固定ヘッダー分のオフセット */
 }
 
 body {
@@ -53,8 +65,8 @@ body {
     line-height: 1.6;
     color: var(--text-primary);
     background: var(--bg-gradient);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;  /* Webkitブラウザでのフォントレンダリング最適化 */
+    -moz-osx-font-smoothing: grayscale;   /* Firefoxでのフォントレンダリング最適化 */
 }
 
 .container {
@@ -64,7 +76,7 @@ body {
     padding: 0 var(--space-lg);
 }
 
-/* Sections */
+/* セクション共通スタイル */
 .section {
     min-height: 100vh;
     padding: var(--space-2xl) 0;
@@ -72,7 +84,9 @@ body {
     position: relative;
 }
 
-/* Alternating section backgrounds */
+/* セクション背景の交互配色
+ * 奇数セクション: ライトテーマ、偶数セクション: ダークテーマ
+ */
 .section:nth-child(odd) {
     background: var(--bg-light);
 }
@@ -82,6 +96,7 @@ body {
     color: var(--text-white);
 }
 
+/* ダークテーマセクションのテキスト色調整 */
 .section:nth-child(even) .section-title {
     color: var(--text-white);
 }
@@ -95,6 +110,7 @@ body {
     color: var(--color-accent);
 }
 
+/* セクションタイトルスタイル */
 .section-title {
     font-size: 2.5rem;
     font-weight: 700;
@@ -104,6 +120,7 @@ body {
     position: relative;
 }
 
+/* セクションタイトル下のアクセントライン */
 .section-title::after {
     content: '';
     position: absolute;
@@ -120,10 +137,12 @@ body {
     background: var(--color-accent);
 }
 
-/* Header */
+/* ヘッダー設定
+ * 固定ヘッダーとブラーエフェクトによるモダンなデザイン
+ */
 .header {
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);  /* 背景ブラー効果 */
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
@@ -139,7 +158,9 @@ body {
     gap: var(--space-lg);
 }
 
-/* Logo */
+/* ロゴスタイル
+ * グラデーションテキストとシャインアニメーション効果
+ */
 .logo a {
     font-size: 1.75rem;
     font-weight: 800;
@@ -155,6 +176,7 @@ body {
     transition: var(--transition);
 }
 
+/* ロゴのシャインアニメーション効果 */
 .logo a::before {
     content: '';
     position: absolute;
@@ -184,7 +206,7 @@ body {
     transform: scale(1.05);
 }
 
-/* Navigation */
+/* ナビゲーションメニュー */
 .nav {
     flex: 1;
     display: flex;
@@ -200,6 +222,7 @@ body {
     padding: 0;
 }
 
+/* ナビゲーションリンクスタイル */
 .nav-link {
     color: var(--text-secondary);
     text-decoration: none;
@@ -215,6 +238,7 @@ body {
     background: rgba(37, 99, 235, 0.1);
 }
 
+/* アクティブなナビゲーションリンク */
 .nav-link.active {
     color: var(--color-primary);
     background: rgba(37, 99, 235, 0.15);
@@ -222,6 +246,7 @@ body {
     box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
+/* ナビゲーションリンク下のアンダーライン効果 */
 .nav-link::before {
     content: '';
     position: absolute;
@@ -243,11 +268,14 @@ body {
     width: 60%;
 }
 
-/* Language Dropdown */
+/* 言語切替ドロップダウン */
 .language-dropdown {
     position: relative;
 }
 
+/* 言語切替ボタン
+ * グラデーション背景とシャインエフェクト
+ */
 .language-toggle {
     display: flex;
     align-items: center;
@@ -268,6 +296,7 @@ body {
     overflow: hidden;
 }
 
+/* 言語切替ボタンのシャインエフェクト */
 .language-toggle::before {
     content: '';
     position: absolute;
@@ -296,13 +325,14 @@ body {
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
+/* ドロップダウン矢印のアニメーション */
 .dropdown-arrow {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .language-dropdown.active .dropdown-arrow {
-    transform: rotate(180deg);
+    transform: rotate(180deg);  /* アクティブ時に180度回転 */
 }
 
 .language-dropdown.active .language-toggle {
@@ -311,6 +341,9 @@ body {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+/* 言語選択メニュー
+ * スライドアニメーションとブラー背景
+ */
 .language-menu {
     position: absolute;
     top: calc(100% + 12px);
@@ -329,6 +362,7 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* メニュー上部の三角形インジケーター */
 .language-menu::before {
     content: '';
     position: absolute;
@@ -347,6 +381,7 @@ body {
     transform: translateY(0) scale(1);
 }
 
+/* 言語選択オプション */
 .language-option {
     display: flex;
     align-items: center;
@@ -375,6 +410,7 @@ body {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
 }
 
+/* アクティブな言語オプション */
 .language-option.active {
     background: linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%);
     color: var(--text-white);
@@ -398,7 +434,7 @@ body {
     letter-spacing: 0.025em;
 }
 
-/* Hero Section - Always Light */
+/* ヒーローセクション - 常にライトテーマ */
 .hero {
     min-height: 100vh;
     display: flex;
@@ -416,6 +452,7 @@ body {
     margin: 0 auto;
 }
 
+/* プロフィール画像スタイル */
 .profile-img {
     width: 500px;
     height: 500px;
@@ -431,6 +468,9 @@ body {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
 }
 
+/* ヒーローセクションのタイトル
+ * レスポンシブなフォントサイズとグラデーションテキスト
+ */
 .hero-title {
     font-weight: 700;
     margin-bottom: var(--space-md);
@@ -487,6 +527,9 @@ body {
     box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
 }
 
+/* 履歴書表示ボタン
+ * グラデーション背景とホバーエフェクト
+ */
 .btn-view-resume {
     display: inline-flex;
     align-items: center;
@@ -506,6 +549,7 @@ body {
     overflow: hidden;
 }
 
+/* ボタンのシャインエフェクト */
 .btn-view-resume::before {
     content: '';
     position: absolute;
@@ -534,7 +578,7 @@ body {
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
-/* About Section - Dark Theme */
+/* 自己紹介セクション - ダークテーマ */
 .about {
     background: var(--bg-dark) !important;
     color: var(--text-white) !important;
@@ -553,6 +597,7 @@ body {
     color: var(--text-light);
 }
 
+/* スキルセクション */
 .skills {
     display: grid;
     gap: var(--space-lg);
@@ -569,6 +614,9 @@ body {
     color: var(--text-light);
 }
 
+/* 情報カード（学歴・誕生日・資格）
+ * 半透明背景とホバーエフェクト
+ */
 .info-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -596,7 +644,9 @@ body {
     color: var(--text-white);
 }
 
-/* Info card links */
+/* 情報カード内のリンク（PDF表示用）
+ * ホバー時に背景色変化とアイコンアニメーション
+ */
 .info-link {
     display: inline-flex;
     align-items: center;
@@ -623,13 +673,13 @@ body {
     transform: translateY(-1px);
 }
 
-/* Experience Section - Light Theme */
+/* 職歴セクション - ライトテーマ */
 .experience {
     background: var(--bg-light) !important;
     color: var(--text-primary) !important;
 }
 
-/* Timeline */
+/* タイムライン表示 */
 .timeline {
     position: relative;
     padding: var(--space-lg) 0;
@@ -735,18 +785,22 @@ body {
     color: var(--color-primary);
 }
 
-/* Projects Section - Dark Theme */
+/* プロジェクトセクション - ダークテーマ */
 .projects {
     background: var(--bg-dark) !important;
     color: var(--text-white) !important;
 }
 
+/* プロジェクトカードのグリッドレイアウト */
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--space-xl);
 }
 
+/* プロジェクトカード
+ * ホバー時のリフト効果と境界線変化
+ */
 .project-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -763,6 +817,7 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
+/* プロジェクトカードヘッダー */
 .project-header {
     display: flex;
     align-items: center;
@@ -776,6 +831,7 @@ body {
     color: var(--text-white);
 }
 
+/* プロジェクトのGitHubリンク */
 .project-header a {
     color: var(--text-light);
     transition: var(--transition);
@@ -812,7 +868,7 @@ body {
     border: 1px solid rgba(14, 165, 233, 0.3);
 }
 
-/* Contact Section - Light Theme */
+/* お問い合わせセクション - ライトテーマ */
 .contact {
     background: var(--bg-light) !important;
     color: var(--text-primary) !important;
@@ -824,6 +880,7 @@ body {
     gap: var(--space-2xl);
 }
 
+/* フォームグループ */
 .form-group {
     margin-bottom: var(--space-lg);
 }
@@ -835,6 +892,7 @@ body {
     color: var(--text-primary);
 }
 
+/* フォーム入力フィールド */
 .form-group input,
 .form-group textarea {
     width: 100%;
@@ -854,6 +912,9 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* 送信ボタン
+ * グラデーション背景とシャインエフェクト
+ */
 .btn-submit {
     background: linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%);
     color: var(--text-white);
@@ -940,7 +1001,7 @@ body {
     color: var(--color-primary);
 }
 
-/* Footer - Always Dark */
+/* フッター - 常にダークテーマ */
 .footer {
     background: var(--bg-dark) !important;
     color: var(--text-white) !important;
@@ -954,6 +1015,7 @@ body {
     justify-content: space-between;
 }
 
+/* フッター内のソーシャルリンク */
 .footer .social-links a {
     width: 40px;
     height: 40px;
@@ -967,7 +1029,6 @@ body {
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
     .container {
         padding: 0 var(--space-md);
@@ -993,7 +1054,6 @@ body {
         padding: 0 var(--space-sm);
     }
     
-    /* Header Mobile */
     .header {
         position: static;
         background: var(--bg-light);
@@ -1042,8 +1102,7 @@ body {
     .nav-link::before {
         display: none;
     }
-    
-    /* Hero Mobile */
+
     .section {
         padding: var(--space-xl) 0;
         scroll-margin-top: 0;
@@ -1113,13 +1172,11 @@ body {
         box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
     }
     
-    /* Section Titles */
     .section-title {
         font-size: 1.8rem;
         margin-bottom: var(--space-xl);
     }
     
-    /* About Mobile */
     .about-content {
         grid-template-columns: 1fr;
         gap: var(--space-lg);
@@ -1164,7 +1221,6 @@ body {
         border-radius: 6px;
     }
     
-    /* Timeline Mobile */
     .timeline::before {
         left: 20px !important;
     }
@@ -1217,7 +1273,6 @@ body {
         line-height: 1.4;
     }
     
-    /* Projects Mobile */
     .projects-grid {
         grid-template-columns: 1fr !important;
         gap: var(--space-lg);
@@ -1245,7 +1300,6 @@ body {
         padding: 4px var(--space-xs);
     }
     
-    /* Contact Mobile */
     .contact-content {
         grid-template-columns: 1fr !important;
         gap: var(--space-lg);
@@ -1292,7 +1346,6 @@ body {
         font-size: 0.9rem;
     }
     
-    /* Footer Mobile */
     .footer {
         padding: var(--space-md) 0;
     }
@@ -1312,7 +1365,6 @@ body {
         height: 35px;
     }
     
-    /* Language Dropdown Mobile */
     .language-toggle {
         min-width: 85px;
         font-size: 0.85rem;
@@ -1343,7 +1395,6 @@ body {
     }
 }
 
-/* Small Mobile (480px and below) */
 @media (max-width: 480px) {
     .container {
         padding: 0 var(--space-xs);
@@ -1388,7 +1439,6 @@ body {
     }
 }
 
-/* Very Small Mobile (375px and below) */
 @media (max-width: 375px) {
     .profile-img {
         width: 220px;
@@ -1424,7 +1474,7 @@ body {
     }
 }
 
-/* Dark theme mobile adjustments */
+/* モバイルでのセクションごとのスタイル調整 */
 @media (max-width: 768px) {
     .section:nth-child(even) .timeline-item::before {
         box-shadow: 0 0 0 3px var(--bg-dark), 0 0 0 5px var(--color-accent) !important;
@@ -1441,7 +1491,7 @@ body {
     }
 }
 
-/* Touch improvements for mobile */
+/* タッチデバイス向けのインタラクション最適化 */
 @media (hover: none) and (pointer: coarse) {
     .nav-link {
         min-height: 44px;
